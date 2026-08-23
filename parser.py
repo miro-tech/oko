@@ -7,6 +7,7 @@ import random
 import re
 import time
 import uuid
+import socket
 from urllib.parse import quote, urlsplit, urlunsplit, parse_qsl, urlencode
 
 import requests
@@ -1144,97 +1145,82 @@ def build_uri_from_outbound(ob):
 
 # ============================================================
 # FINAL SNI PROCESSING
-#
-# Только:
-#
-# security=tls -> sni=rbc.ru
-#
-# security=reality -> НЕ ТРОГАЕМ
 # ============================================================
 
-def change_tls_sni(
-    uri,
-    new_sni="rbc.ru"
-):
+def change_tls_sni(uri, new_sni="rbc.ru"):
+
+    ...
+    # твоя существующая функция
+    ...
+
+    return urlunsplit((
+        parts.scheme,
+        parts.netloc,
+        parts.path,
+        new_query,
+        parts.fragment
+    ))
+
+
+# ============================================================
+# ADDRESS HOSTNAME -> IP
+# ============================================================
+
+def change_address_to_ip(uri):
 
     try:
 
         parts = urlsplit(uri)
 
-        params = parse_qsl(
-            parts.query,
-            keep_blank_values=True
-        )
+        netloc = parts.netloc
 
-        security = None
-
-        for key, value in params:
-
-            if key.lower() == "security":
-
-                security = value.lower()
-
-                break
-
-        # ----------------------------------------------------
-        # Reality НЕ трогаем
-        # ----------------------------------------------------
-
-        if security == "reality":
+        if "@" not in netloc:
             return uri
 
-        # ----------------------------------------------------
-        # Не TLS — тоже не трогаем
-        # ----------------------------------------------------
+        userinfo, address = netloc.rsplit("@", 1)
 
-        if security != "tls":
+        if address.startswith("["):
             return uri
 
-        # ----------------------------------------------------
-        # TLS
-        # ----------------------------------------------------
+        if ":" not in address:
+            hostname = address
+            port = ""
+        else:
+            hostname, port = address.rsplit(":", 1)
 
-        result = []
-        sni_found = False
+        if not hostname:
+            return uri
 
-        for key, value in params:
+        if re.match(
+            r"^(?:\d{1,3}\.){3}\d{1,3}$",
+            hostname
+        ):
+            return uri
 
-            if key.lower() == "sni":
+        try:
+            ip = socket.gethostbyname(hostname)
+        except socket.gaierror:
+            return uri
 
-                result.append(
-                    (key, new_sni)
-                )
+        if not ip:
+            return uri
 
-                sni_found = True
+        if port:
+            new_address = ip + ":" + port
+        else:
+            new_address = ip
 
-            else:
-
-                result.append(
-                    (key, value)
-                )
-
-        # Если SNI отсутствовал
-        if not sni_found:
-
-            result.append(
-                ("sni", new_sni)
-            )
-
-        new_query = urlencode(
-            result,
-            doseq=True
-        )
+        new_netloc = userinfo + "@" + new_address
 
         return urlunsplit((
             parts.scheme,
-            parts.netloc,
+            new_netloc,
             parts.path,
-            new_query,
+            parts.query,
             parts.fragment
         ))
 
     except Exception:
-
         return uri
 
 
@@ -1519,8 +1505,8 @@ def main():
                 seen.add(key)
                 links.append(link)
 
-    # ========================================================
-    # SNI
+        # ========================================================
+    # SNI + ADDRESS -> IP
     # ========================================================
 
     print()
@@ -1530,11 +1516,17 @@ def main():
         len(links)
     )
 
-    changed = 0
+    changed_sni = 0
+    changed_address = 0
 
     processed_links = []
 
     for link in links:
+
+        # ----------------------------------------------------
+        # TLS SNI -> rbc.ru
+        # Reality не изменяется
+        # ----------------------------------------------------
 
         new_link = change_tls_sni(
             link,
@@ -1542,7 +1534,22 @@ def main():
         )
 
         if new_link != link:
-            changed += 1
+            changed_sni += 1
+
+        # ----------------------------------------------------
+        # @hostname:port -> @IP:port
+        #
+        # host=hostname остаётся без изменений
+        # ----------------------------------------------------
+
+        before_ip = new_link
+
+        new_link = change_address_to_ip(
+            new_link
+        )
+
+        if new_link != before_ip:
+            changed_address += 1
 
         processed_links.append(
             new_link
@@ -1552,7 +1559,12 @@ def main():
 
     print(
         "Изменено TLS SNI:",
-        changed
+        changed_sni
+    )
+
+    print(
+        "Изменено address -> IP:",
+        changed_address
     )
 
     # ========================================================
