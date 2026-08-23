@@ -18,7 +18,7 @@ import urllib3
 # ============================================================
 
 GIST_ID = os.environ["GIST_ID"]
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+GITHUB_TOKEN = os.environ["GHUB_TOKEN"]
 GIST_FILENAME = "oko.txt"
 
 BACKEND = "https://command.gatoscongress.top"
