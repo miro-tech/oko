@@ -31,6 +31,6 @@ jobs:
       - name: Run updater
         env:
           GIST_ID: ${{ secrets.GIST_ID }}
-          GITHUB_TOKEN: ${{ secrets.GHUB_TOKEN }}
+          GHUB_TOKEN: ${{ secrets.GHUB_TOKEN }}
         run: |
           python parser.py
