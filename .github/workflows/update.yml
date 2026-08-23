@@ -33,4 +33,4 @@ jobs:
           GIST_ID: ${{ secrets.GIST_ID }}
           GITHUB_TOKEN: ${{ secrets.GHUB_TOKEN }}
         run: |
-          python oko_rentry_updater.py
+          python parser.py
