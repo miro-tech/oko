@@ -1244,11 +1244,11 @@ def change_tls_sni(
 
 def update_gist(content):
 
-    if not GIST_ID or not GITHUB_TOKEN:
+    if not GIST_ID or not GHUB_TOKEN:
 
         print(
             "Gist SKIP: пустой "
-            "GIST_ID / GITHUB_TOKEN"
+            "GIST_ID / GHUB_TOKEN"
         )
 
         return False
@@ -1261,7 +1261,7 @@ def update_gist(content):
     headers = {
         "Authorization": (
             "Bearer "
-            + GITHUB_TOKEN
+            + GHUB_TOKEN
         ),
 
         "User-Agent": (
