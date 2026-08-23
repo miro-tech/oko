@@ -8,7 +8,14 @@ import re
 import time
 import uuid
 import socket
-from urllib.parse import quote, urlsplit, urlunsplit, parse_qsl, urlencode
+
+from urllib.parse import (
+    quote,
+    urlsplit,
+    urlunsplit,
+    parse_qsl,
+    urlencode,
+)
 
 import requests
 import urllib3
@@ -20,6 +27,7 @@ import urllib3
 
 GIST_ID = os.environ["GIST_ID"]
 GHUB_TOKEN = os.environ["GHUB_TOKEN"]
+
 GIST_FILENAME = "oko.txt"
 
 BACKEND = "https://command.gatoscongress.top"
@@ -56,11 +64,15 @@ def http_req(method, url, **kwargs):
     headers = kwargs.pop("headers", None)
 
     try:
+
         r = session.request(
             method,
             url,
             headers=headers,
-            timeout=(CONNECT_TIMEOUT, TIMEOUT),
+            timeout=(
+                CONNECT_TIMEOUT,
+                TIMEOUT
+            ),
             allow_redirects=True,
             verify=False,
             **kwargs
@@ -129,21 +141,37 @@ def register_device():
         return None
 
     try:
-        data = json.loads(r["body"])
+
+        data = json.loads(
+            r["body"]
+        )
 
     except json.JSONDecodeError:
 
-        print("  [1] invalid JSON")
-        print(r["body"][:500])
+        print(
+            "  [1] invalid JSON"
+        )
+
+        print(
+            r["body"][:500]
+        )
 
         return None
 
-    device_token = data.get("device_token")
+    device_token = data.get(
+        "device_token"
+    )
 
     if not device_token:
 
-        print("  [1] no device_token")
-        print("      response:", data)
+        print(
+            "  [1] no device_token"
+        )
+
+        print(
+            "      response:",
+            data
+        )
 
         return None
 
@@ -197,23 +225,39 @@ def login_cabinet():
         return None
 
     try:
-        data = json.loads(r["body"])
+
+        data = json.loads(
+            r["body"]
+        )
 
     except json.JSONDecodeError:
 
-        print("  [2] invalid JSON")
-        print(r["body"][:500])
+        print(
+            "  [2] invalid JSON"
+        )
+
+        print(
+            r["body"][:500]
+        )
 
         return None
 
     if not data.get("success"):
 
-        print("  [2] LOGIN not success")
-        print("      response:", data)
+        print(
+            "  [2] LOGIN not success"
+        )
+
+        print(
+            "      response:",
+            data
+        )
 
         return None
 
-    print(f"  [2] логин: {email}")
+    print(
+        f"  [2] логин: {email}"
+    )
 
     return email
 
@@ -324,7 +368,10 @@ def fetch_configs(sub_url):
     # --------------------------------------------------------
 
     try:
-        configs = json.loads(body)
+
+        configs = json.loads(
+            body
+        )
 
     except json.JSONDecodeError:
 
@@ -360,7 +407,9 @@ def fetch_configs(sub_url):
                 ]
             }
 
-        print("  [4] SUB parse fail")
+        print(
+            "  [4] SUB parse fail"
+        )
 
         return None
 
@@ -369,7 +418,9 @@ def fetch_configs(sub_url):
         (list, dict)
     ):
 
-        print("  [4] SUB parse fail")
+        print(
+            "  [4] SUB parse fail"
+        )
 
         return None
 
@@ -523,6 +574,7 @@ def build_vless_from_outbound(ob):
     }
 
     if security and security != "none":
+
         q["security"] = security
 
     # ========================================================
@@ -532,25 +584,43 @@ def build_vless_from_outbound(ob):
     if security == "reality":
 
         if reality.get("serverName"):
-            q["sni"] = reality["serverName"]
+
+            q["sni"] = (
+                reality["serverName"]
+            )
 
         if reality.get("publicKey"):
-            q["pbk"] = reality["publicKey"]
+
+            q["pbk"] = (
+                reality["publicKey"]
+            )
 
         if reality.get("shortId"):
-            q["sid"] = reality["shortId"]
+
+            q["sid"] = (
+                reality["shortId"]
+            )
 
         if reality.get("spiderX"):
-            q["spx"] = reality["spiderX"]
+
+            q["spx"] = (
+                reality["spiderX"]
+            )
 
         if reality.get("fingerprint"):
-            q["fp"] = reality["fingerprint"]
+
+            q["fp"] = (
+                reality["fingerprint"]
+            )
 
         elif tls.get("fingerprint"):
-            q["fp"] = tls["fingerprint"]
+
+            q["fp"] = (
+                tls["fingerprint"]
+            )
 
     # ========================================================
-    # TLS
+    # TLS / NONE
     # ========================================================
 
     else:
@@ -561,16 +631,19 @@ def build_vless_from_outbound(ob):
         )
 
         if tls.get("fingerprint"):
+
             q["fp"] = (
                 tls["fingerprint"]
             )
 
         if tls.get("alpn"):
+
             q["alpn"] = ",".join(
                 tls["alpn"]
             )
 
     if flow:
+
         q["flow"] = flow
 
     q["type"] = network
@@ -602,6 +675,7 @@ def build_vless_from_outbound(ob):
         )
 
         if mode and mode != "auto":
+
             q["mode"] = mode
 
         extra = xh.get(
@@ -641,6 +715,7 @@ def build_vless_from_outbound(ob):
                 )
 
             if parts:
+
                 q["xmux"] = (
                     ",".join(parts)
                 )
@@ -650,7 +725,9 @@ def build_vless_from_outbound(ob):
         ):
 
             q["xPaddingBytes"] = (
-                extra["xPaddingBytes"]
+                extra[
+                    "xPaddingBytes"
+                ]
             )
 
         if "noSSEHeader" in extra:
@@ -824,8 +901,14 @@ def build_vless_from_outbound(ob):
 def build_trojan_from_outbound(ob):
 
     servers = (
-        ob.get("settings", {})
-        .get("servers", [])
+        ob.get(
+            "settings",
+            {}
+        )
+        .get(
+            "servers",
+            []
+        )
     )
 
     if not servers:
@@ -937,8 +1020,14 @@ def build_trojan_from_outbound(ob):
 def build_ss_from_outbound(ob):
 
     servers = (
-        ob.get("settings", {})
-        .get("servers", [])
+        ob.get(
+            "settings",
+            {}
+        )
+        .get(
+            "servers",
+            []
+        )
     )
 
     if not servers:
@@ -993,8 +1082,14 @@ def build_ss_from_outbound(ob):
 def build_vmess_from_outbound(ob):
 
     vnext = (
-        ob.get("settings", {})
-        .get("vnext", [])
+        ob.get(
+            "settings",
+            {}
+        )
+        .get(
+            "vnext",
+            []
+        )
     )
 
     if not vnext:
@@ -1095,6 +1190,7 @@ def build_vmess_from_outbound(ob):
         )
 
         if host:
+
             obj["host"] = host
 
     raw = json.dumps(
@@ -1126,91 +1222,264 @@ def build_uri_from_outbound(ob):
     )
 
     if proto == "vless":
-        return build_vless_from_outbound(ob)
+
+        return build_vless_from_outbound(
+            ob
+        )
 
     if proto == "trojan":
-        return build_trojan_from_outbound(ob)
+
+        return build_trojan_from_outbound(
+            ob
+        )
 
     if proto in (
         "shadowsocks",
         "ss"
     ):
-        return build_ss_from_outbound(ob)
+
+        return build_ss_from_outbound(
+            ob
+        )
 
     if proto == "vmess":
-        return build_vmess_from_outbound(ob)
+
+        return build_vmess_from_outbound(
+            ob
+        )
 
     return None
 
 
 # ============================================================
-# FINAL SNI PROCESSING
+# CHANGE TLS SNI
+#
+# Обычный TLS:
+#     sni -> rbc.ru
+#
+# Reality:
+#     НЕ ТРОГАЕМ
 # ============================================================
 
-def change_tls_sni(uri, new_sni="rbc.ru"):
+def change_tls_sni(
+    uri,
+    new_sni="rbc.ru"
+):
 
-    ...
-    # твоя существующая функция
-    ...
+    try:
 
-    return urlunsplit((
-        parts.scheme,
-        parts.netloc,
-        parts.path,
-        new_query,
-        parts.fragment
-    ))
+        parts = urlsplit(
+            uri
+        )
+
+        params = parse_qsl(
+            parts.query,
+            keep_blank_values=True
+        )
+
+        security = None
+
+        for key, value in params:
+
+            if key.lower() == "security":
+
+                security = (
+                    value.lower()
+                )
+
+                break
+
+        # ----------------------------------------------------
+        # Reality
+        # ----------------------------------------------------
+
+        if security == "reality":
+
+            return uri
+
+        # ----------------------------------------------------
+        # Не TLS
+        # ----------------------------------------------------
+
+        if security != "tls":
+
+            return uri
+
+        # ----------------------------------------------------
+        # TLS
+        # ----------------------------------------------------
+
+        result = []
+        sni_found = False
+
+        for key, value in params:
+
+            if key.lower() == "sni":
+
+                result.append(
+                    (key, new_sni)
+                )
+
+                sni_found = True
+
+            else:
+
+                result.append(
+                    (key, value)
+                )
+
+        if not sni_found:
+
+            result.append(
+                ("sni", new_sni)
+            )
+
+        new_query = urlencode(
+            result,
+            doseq=True
+        )
+
+        return urlunsplit((
+            parts.scheme,
+            parts.netloc,
+            parts.path,
+            new_query,
+            parts.fragment
+        ))
+
+    except Exception as e:
+
+        print(
+            "  [!] SNI processing error:",
+            e
+        )
+
+        return uri
 
 
 # ============================================================
-# ADDRESS HOSTNAME -> IP
+# ADDRESS HOSTNAME -> IPv4
+#
+# Меняет ТОЛЬКО:
+#
+#     uuid@hostname:port
+#
+# на:
+#
+#     uuid@IP:port
+#
+# host= НЕ изменяется
+# sni= НЕ изменяется
 # ============================================================
 
 def change_address_to_ip(uri):
 
     try:
 
-        parts = urlsplit(uri)
+        parts = urlsplit(
+            uri
+        )
 
         netloc = parts.netloc
 
         if "@" not in netloc:
+
             return uri
 
-        userinfo, address = netloc.rsplit("@", 1)
+        userinfo, address = (
+            netloc.rsplit("@", 1)
+        )
+
+        # ----------------------------------------------------
+        # IPv6 не трогаем
+        # ----------------------------------------------------
 
         if address.startswith("["):
+
             return uri
 
-        if ":" not in address:
+        # ----------------------------------------------------
+        # hostname + port
+        # ----------------------------------------------------
+
+        if ":" in address:
+
+            hostname, port = (
+                address.rsplit(":", 1)
+            )
+
+        else:
+
             hostname = address
             port = ""
-        else:
-            hostname, port = address.rsplit(":", 1)
 
         if not hostname:
+
             return uri
+
+        # ----------------------------------------------------
+        # Уже IPv4
+        # ----------------------------------------------------
 
         if re.match(
             r"^(?:\d{1,3}\.){3}\d{1,3}$",
             hostname
         ):
+
             return uri
 
+        # ----------------------------------------------------
+        # DNS -> IPv4
+        # ----------------------------------------------------
+
         try:
-            ip = socket.gethostbyname(hostname)
+
+            ip = socket.gethostbyname(
+                hostname
+            )
+
         except socket.gaierror:
+
             return uri
 
         if not ip:
+
             return uri
 
+        # ----------------------------------------------------
+        # Собираем address
+        # ----------------------------------------------------
+
         if port:
-            new_address = ip + ":" + port
+
+            new_address = (
+                ip
+                + ":"
+                + port
+            )
+
         else:
+
             new_address = ip
 
-        new_netloc = userinfo + "@" + new_address
+        new_netloc = (
+            userinfo
+            + "@"
+            + new_address
+        )
+
+        # ----------------------------------------------------
+        # ВАЖНО:
+        #
+        # parts.query сохраняется полностью.
+        #
+        # Поэтому:
+        #
+        # host=hostname
+        # sni=rbc.ru
+        #
+        # останутся без изменений.
+        # ----------------------------------------------------
 
         return urlunsplit((
             parts.scheme,
@@ -1221,6 +1490,7 @@ def change_address_to_ip(uri):
         ))
 
     except Exception:
+
         return uri
 
 
@@ -1378,9 +1648,9 @@ def main():
     links = []
     seen = set()
 
-    # --------------------------------------------------------
+    # ========================================================
     # BASE64 FALLBACK
-    # --------------------------------------------------------
+    # ========================================================
 
     if "__raw_links__" in configs:
 
@@ -1396,33 +1666,18 @@ def main():
             if "://" not in line:
                 continue
 
-            parts = line.split(
-                "#",
-                1
-            )
-
-            base = parts[0]
-
-            if len(parts) > 1:
-                fragment = parts[1]
-            else:
-                fragment = "server"
-
-            new_link = (
-                base
-                + "#"
-                + fragment
-            )
-
-            if new_link in seen:
+            if line in seen:
                 continue
 
-            seen.add(new_link)
-            links.append(new_link)
+            seen.add(line)
 
-    # --------------------------------------------------------
+            links.append(
+                line
+            )
+
+    # ========================================================
     # JSON
-    # --------------------------------------------------------
+    # ========================================================
 
     else:
 
@@ -1445,6 +1700,7 @@ def main():
                 cfg,
                 dict
             ):
+
                 continue
 
             outbounds = cfg.get(
@@ -1456,6 +1712,7 @@ def main():
                 outbounds,
                 list
             ):
+
                 continue
 
             for ob in outbounds:
@@ -1464,6 +1721,7 @@ def main():
                     ob,
                     dict
                 ):
+
                     continue
 
                 link = (
@@ -1473,10 +1731,11 @@ def main():
                 )
 
                 if not link:
+
                     continue
 
                 # ------------------------------------------------
-                # Dedup по protocol + address:port
+                # Dedup protocol + address:port
                 # ------------------------------------------------
 
                 match = re.match(
@@ -1500,13 +1759,17 @@ def main():
                     key = link
 
                 if key in seen:
+
                     continue
 
                 seen.add(key)
-                links.append(link)
 
-        # ========================================================
-    # SNI + ADDRESS -> IP
+                links.append(
+                    link
+                )
+
+    # ========================================================
+    # FINAL PROCESSING
     # ========================================================
 
     print()
@@ -1524,8 +1787,9 @@ def main():
     for link in links:
 
         # ----------------------------------------------------
-        # TLS SNI -> rbc.ru
-        # Reality не изменяется
+        # 1. TLS SNI -> rbc.ru
+        #
+        # Reality НЕ меняется.
         # ----------------------------------------------------
 
         new_link = change_tls_sni(
@@ -1534,21 +1798,25 @@ def main():
         )
 
         if new_link != link:
+
             changed_sni += 1
 
         # ----------------------------------------------------
-        # @hostname:port -> @IP:port
+        # 2. hostname -> IPv4
         #
-        # host=hostname остаётся без изменений
+        # Меняется только address после @.
+        #
+        # host= остаётся hostname.
         # ----------------------------------------------------
 
-        before_ip = new_link
+        before_address = new_link
 
         new_link = change_address_to_ip(
             new_link
         )
 
-        if new_link != before_ip:
+        if new_link != before_address:
+
             changed_address += 1
 
         processed_links.append(
@@ -1563,7 +1831,7 @@ def main():
     )
 
     print(
-        "Изменено address -> IP:",
+        "Заменено hostname -> IP:",
         changed_address
     )
 
